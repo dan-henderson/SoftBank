@@ -7,6 +7,7 @@ export class Account {
     constructor(name: string) {
         this.holder = name;
         this.balance = 0;
+        this.transactions = [];
     }
 
     addTransaction(transaction: Transaction) {
