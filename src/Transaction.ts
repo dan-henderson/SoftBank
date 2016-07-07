@@ -1,5 +1,5 @@
 
-class Transaction {
+export class Transaction {
     date: string;
     from: string;
     to: string;

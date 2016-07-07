@@ -1,5 +1,6 @@
+import {Transaction} from './Transaction';
 
-class Account {
+export class Account {
     holder: string;
     balance: number;
     transactions: Transaction[];
