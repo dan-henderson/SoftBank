@@ -20,7 +20,7 @@ function handleCommand(input: string) {
         rl.close();
         process.exit();
     } else {
-        // executeCommand(input);
+        executeCommand(input);
         rl.question('Input command: ', handleCommand);
     }
 };
@@ -76,4 +76,52 @@ function lookupAccount(name: string, accounts: Account[]) : number {
         }
     }
     return -1;
+}
+
+function executeCommand(input: string) {
+    let command: string[] = input.split(" ");
+
+    if (command[0] == "List" || command[0] == "list") {
+        let arg: string = command[1];
+        if (command.length > 2) {
+            arg = command.slice(1, command.length).join(" ");
+        }
+        let index: number = lookupAccount(arg, accounts);
+        if (index < 0) {
+            if (arg == "All" || arg == "all") {
+                printAll();
+            }
+        } else {
+            printStatement(index);
+        }
+    } else {
+        console.log("Command not recognised, enter 'List <Account holder>', 'List All', or 'exit'");
+    }
+}
+
+function printAll() {
+    for (var i = 0; i < accounts.length; i++) {
+        printBalance(i);
+    }
+}
+
+function printBalance(index: number) {
+    console.log("Name: " + accounts[index].holder + ". Balance: " + accounts[index].balance.toString());
+}
+
+function printStatement(index: number) {
+    printBalance(index);
+    printTransactions(accounts[index].transactions);
+}
+
+function printTransactions(transactions: Transaction[]) {
+    console.log("Transactions: ");
+    for (var i = 0; i < transactions.length; i++) {
+        printTransaction(transactions[i]);
+    }
+}
+
+function printTransaction(transaction: Transaction) {
+    console.log(transaction.date + "," + transaction.from + "," + transaction.to + "," +
+        transaction.narrative + "," + transaction.amount.toString())
 }
