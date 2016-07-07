@@ -14,7 +14,7 @@ export class Account {
         if (transaction.to == this.holder) {
             this.balance += transaction.amount;
         } else {
-            this.balance -= this.balance + transaction.amount;
+            this.balance -= transaction.amount;
         }
         this.transactions.push(transaction);
     }
