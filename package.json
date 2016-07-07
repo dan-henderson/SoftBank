@@ -1,0 +1,5 @@
+{
+  "name": "typescript-fizzbuzz",
+  "version": "1.0.0",
+  "main": "bin/app.ts"
+}
