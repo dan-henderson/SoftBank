@@ -7,9 +7,10 @@ let data = fs.readFileSync('Transactions2014.csv', 'utf8');
 //console.log(data);
 
 let transactions = parseCSV(data);
-console.log(transactions);
+//console.log(transactions);
 
 let accounts: Account[] = workOutAccounts(transactions);
+//console.log(accounts);
 
 const rl = readline.createInterface(process.stdin, process.stdout);
 rl.question('Input command: ', handleCommand);
@@ -19,7 +20,7 @@ function handleCommand(input: string) {
         rl.close();
         process.exit();
     } else {
-        // code to handle command
+        // executeCommand(input);
         rl.question('Input command: ', handleCommand);
     }
 };
@@ -37,7 +38,8 @@ function parseCSV(data: string) : Transaction[] {
     //console.log(data_array);
 
     let transactions: Transaction[] = [];
-    for (var i = 0; i < data_array.length/5; i++) {
+    // N.B. starts at 1 to miss out header row
+    for (var i = 1; i < data_array.length/5; i++) {
         transactions.push(new Transaction(
             data_array[5*i],
             data_array[5*i+1],
@@ -50,24 +52,28 @@ function parseCSV(data: string) : Transaction[] {
 }
 
 function workOutAccounts(transactions: Transaction[]) : Account[] {
-    return[];
+    let accounts: Account[] = [];
+    for (var i = 0; i < transactions.length; i++) {
+        processTransaction(transactions[i].from, transactions[i], accounts);
+        processTransaction(transactions[i].to, transactions[i], accounts);
+    }
+    return accounts;
 }
 
-/*
-import {Account} from './Account';
-import {Transaction} from './Transaction';
+function processTransaction(name: string, transaction: Transaction, accounts: Account[]) {
+    let index: number = lookupAccount(name, accounts);
+    if (index < 0) {
+        index = accounts.push(new Account(name)) - 1;
+    }
+    accounts[index].addTransaction(transaction);
+}
 
-let first_account: Account = new Account("me");
-
-console.log(first_account);
-
-let first_transaction: Transaction = new Transaction("07/07/2016", "me", "you", "to test this program", 10);
-
-console.log(first_transaction);
-
-first_account.addTransaction(first_transaction);
-
-console.log(first_account);
-
-process.exit();
-*/
+// returns -1 if account does not exist in that name
+function lookupAccount(name: string, accounts: Account[]) : number {
+    for (var i = 0; i < accounts.length; i++) {
+        if (accounts[i].holder == name) {
+            return i;
+        }
+    }
+    return -1;
+}
