@@ -1,13 +1,16 @@
 import fs = require('fs');
 import * as readline from 'readline';
+import {CSVParser} from './CSVParser';
 import {Transaction} from './Transaction';
 import {Account} from './Account';
 
 let data = fs.readFileSync('Transactions2014.csv', 'utf8');
 //console.log(data);
 
-let transactions = parseCSV(data);
-//console.log(transactions);
+let parser = new CSVParser();
+
+let transactions = parser.parseCSV(data);
+console.log(transactions);
 
 let accounts: Account[] = workOutAccounts(transactions);
 //console.log(accounts);
@@ -24,32 +27,6 @@ function handleCommand(input: string) {
         rl.question('Input command: ', handleCommand);
     }
 };
-
-function parseCSV(data: string) : Transaction[] {
-    let split1: string[] = data.split('\r\n');
-    let data_array: string[] = [];
-    for (var i = 0; i < split1.length; i++) {
-        let split2: string[] = split1[i].split(',');
-        for (var j = 0; j < split2.length; j++) {
-            data_array.push(split2[j]);
-        }
-    }
-    data_array.pop();
-    //console.log(data_array);
-
-    let transactions: Transaction[] = [];
-    // N.B. starts at 1 to miss out header row
-    for (var i = 1; i < data_array.length/5; i++) {
-        transactions.push(new Transaction(
-            data_array[5*i],
-            data_array[5*i+1],
-            data_array[5*i+2],
-            data_array[5*i+3],
-            parseFloat(data_array[5*i+4])
-            ))
-    }
-    return transactions;
-}
 
 function workOutAccounts(transactions: Transaction[]) : Account[] {
     let accounts: Account[] = [];
@@ -71,7 +48,8 @@ function processTransaction(name: string, transaction: Transaction, accounts: Ac
 // returns -1 if account does not exist in that name
 function lookupAccount(name: string, accounts: Account[]) : number {
     for (var i = 0; i < accounts.length; i++) {
-        if (accounts[i].holder == name) {
+        // N.B. doesn't care about upper/lower case
+        if (accounts[i].holder.toLowerCase() == name.toLowerCase()) {
             return i;
         }
     }
@@ -81,21 +59,23 @@ function lookupAccount(name: string, accounts: Account[]) : number {
 function executeCommand(input: string) {
     let command: string[] = input.split(" ");
 
-    if (command[0] == "List" || command[0] == "list") {
+    if (command[0].toLowerCase() == "list") {
         let arg: string = command[1];
+
+        // to deal with spaces between first name and surname
         if (command.length > 2) {
             arg = command.slice(1, command.length).join(" ");
         }
         let index: number = lookupAccount(arg, accounts);
         if (index < 0) {
-            if (arg == "All" || arg == "all") {
+            if (arg.toLowerCase() == "all") {
                 printAll();
             }
         } else {
             printStatement(index);
         }
     } else {
-        console.log("Command not recognised, enter 'List <Account holder>', 'List All', or 'exit'");
+        console.log("Command not recognised");
     }
 }
 
