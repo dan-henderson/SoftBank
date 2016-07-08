@@ -1,19 +1,13 @@
-import fs = require('fs');
 import * as readline from 'readline';
-import {CSVParser} from './CSVParser';
+import {FileReader} from './FileReader';
 import {AccountManager} from './AccountManager';
 import {Transaction} from './Transaction';
-import {Account} from './Account';
 
-let parser = new CSVParser();
+let file_reader = new FileReader();
 let accountant = new AccountManager();
 
-let data = fs.readFileSync('Transactions2014.csv', 'utf8');
-let transactions: Transaction[] = parser.parseCSV(data);
-
-let accounts: Account[] = [];
+let transactions: Transaction[] = file_reader.importTransactions('Transactions2014.csv')
 accountant.processTransactions(transactions);
-//console.log(accounts);
 
 const rl = readline.createInterface(process.stdin, process.stdout);
 rl.question('Input command: ', handleCommand);
