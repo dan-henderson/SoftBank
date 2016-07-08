@@ -6,9 +6,6 @@ import {Transaction} from './Transaction';
 let file_reader = new FileReader();
 let accountant = new AccountManager();
 
-let transactions: Transaction[] = file_reader.importTransactions('Transactions2014.csv')
-accountant.processTransactions(transactions);
-
 const rl = readline.createInterface(process.stdin, process.stdout);
 rl.question('Input command: ', handleCommand);
 
@@ -25,13 +22,14 @@ function handleCommand(input: string) {
 function executeCommand(input: string) {
     let command: string[] = input.split(" ");
 
-    if (command[0].toLowerCase() == "list") {
-        let arg: string = command[1];
+    let arg: string = command[1];
 
-        // to deal with spaces between first name and surname
-        if (command.length > 2) {
-            arg = command.slice(1, command.length).join(" ");
-        }
+    // to deal with spaces between first name and surname
+    if (command.length > 2) {
+        arg = command.slice(1, command.length).join(" ");
+    }
+
+    if (command[0].toLowerCase() == "list") {
         let index: number = accountant.lookupAccount(arg);
         if (index < 0) {
             if (arg.toLowerCase() == "all") {
@@ -40,7 +38,12 @@ function executeCommand(input: string) {
         } else {
             accountant.printStatement(index);
         }
-    } else {
+    }
+    else if (command[0].toLowerCase() == 'import') {
+        let transactions: Transaction[] = file_reader.importTransactions(arg);
+        accountant.processTransactions(transactions);
+    }
+    else {
         console.log("Command not recognised");
     }
 }
