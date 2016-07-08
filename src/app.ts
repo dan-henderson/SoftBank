@@ -1,23 +1,25 @@
 import fs = require('fs');
 import * as readline from 'readline';
 import {CSVParser} from './CSVParser';
+import {AccountManager} from './AccountManager';
 import {Transaction} from './Transaction';
 import {Account} from './Account';
 
-let data = fs.readFileSync('Transactions2014.csv', 'utf8');
-
 let parser = new CSVParser();
+//let accountant = new AccountManager();
 
+let data = fs.readFileSync('Transactions2014.csv', 'utf8');
 let transactions: Transaction[] = parser.parseCSV(data);
 
-let accounts: Account[] = workOutAccounts(transactions);
+let accounts: Account[] = [];
+workOutAccounts(transactions);
 //console.log(accounts);
 
 const rl = readline.createInterface(process.stdin, process.stdout);
 rl.question('Input command: ', handleCommand);
 
 function handleCommand(input: string) {
-    if (input == "exit") {
+    if (input.toLowerCase() == "exit") {
         rl.close();
         process.exit();
     } else {
@@ -26,17 +28,15 @@ function handleCommand(input: string) {
     }
 };
 
-function workOutAccounts(transactions: Transaction[]) : Account[] {
-    let accounts: Account[] = [];
+function workOutAccounts(transactions: Transaction[]) {
     for (var i = 0; i < transactions.length; i++) {
-        processTransaction(transactions[i].from, transactions[i], accounts);
-        processTransaction(transactions[i].to, transactions[i], accounts);
+        processTransaction(transactions[i].from, transactions[i]);
+        processTransaction(transactions[i].to, transactions[i]);
     }
-    return accounts;
 }
 
-function processTransaction(name: string, transaction: Transaction, accounts: Account[]) {
-    let index: number = lookupAccount(name, accounts);
+function processTransaction(name: string, transaction: Transaction) {
+    let index: number = lookupAccount(name);
     if (index < 0) {
         index = accounts.push(new Account(name)) - 1;
     }
@@ -44,7 +44,7 @@ function processTransaction(name: string, transaction: Transaction, accounts: Ac
 }
 
 // returns -1 if account does not exist in that name
-function lookupAccount(name: string, accounts: Account[]) : number {
+function lookupAccount(name: string) : number {
     for (var i = 0; i < accounts.length; i++) {
         // N.B. doesn't care about upper/lower case
         if (accounts[i].holder.toLowerCase() == name.toLowerCase()) {
@@ -64,7 +64,7 @@ function executeCommand(input: string) {
         if (command.length > 2) {
             arg = command.slice(1, command.length).join(" ");
         }
-        let index: number = lookupAccount(arg, accounts);
+        let index: number = lookupAccount(arg);
         if (index < 0) {
             if (arg.toLowerCase() == "all") {
                 printAll();
