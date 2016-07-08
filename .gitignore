@@ -1,6 +1,6 @@
 bin/
 
-Transactions2014.csv
+*.csv
 
 # Created by https://www.gitignore.io/api/node,typings
 
